@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CineMatch — Discover Your Next Obsession</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- ── Hero ──────────────────────────────────────────────────────── -->
+    <div class="hero">
+      <div class="hero-eyebrow">Curated Cinema</div>
+      <h1>Cine<em>Match</em></h1>
+      <p class="subtitle">Tell us one film you love. We'll find your next obsession.</p>
+    </div>
+
+    <!-- ── Search ────────────────────────────────────────────────────── -->
+    <form method="POST" class="search-box" autocomplete="off">
+      <div class="search-wrap">
+        <input
+          type="text"
+          name="movie"
+          placeholder="e.g. Inception, The Godfather…"
+          value="{{ searched_movie }}"
+          required
+        >
+        <span class="search-icon">⌕</span>
+      </div>
+      <button type="submit">Discover</button>
+    </form>
+
+
+    <!-- ── Trending ──────────────────────────────────────────────────── -->
+    {% if trending_movies %}
+    <div class="section-header">
+      <h2 class="section-title">Trending</h2>
+      <span class="section-tag">Today</span>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="movies-container">
+      {% for movie in trending_movies %}
+      <div class="movie-card">
+
+        <div class="poster-wrap">
+          {% if movie.poster %}
+          <img src="{{ movie.poster }}" alt="{{ movie.title }}" loading="lazy">
+          {% endif %}
+          <div class="rating-badge">★ {{ movie.rating }}</div>
+        </div>
+
+        <div class="movie-info">
+          <h2>{{ movie.title }}</h2>
+          <p class="overview">{{ movie.overview }}</p>
+
+          <div class="card-actions">
+            {% if movie.trailer %}
+            <a href="{{ movie.trailer }}" target="_blank" class="trailer-btn">Trailer</a>
+            {% endif %}
+            <button class="details-btn" data-pool="trending" data-idx="{{ loop.index0 }}">Details</button>
+          </div>
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+
+    <!-- ── Recommendations ───────────────────────────────────────────── -->
+    {% if movies %}
+    <div class="section-header">
+      <h2 class="section-title">
+        Because you like
+        <em style="font-family:'Cormorant Garamond',serif;color:var(--gold);font-style:italic">
+          {{ searched_movie }}
+        </em>
+      </h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="movies-container">
+      {% for movie in movies %}
+      <div class="movie-card">
+
+        <div class="poster-wrap">
+          {% if movie.poster %}
+          <img src="{{ movie.poster }}" alt="{{ movie.title }}" loading="lazy">
+          {% endif %}
+          <div class="rating-badge">★ {{ movie.rating }}</div>
+        </div>
+
+        <div class="movie-info">
+          <h2>{{ movie.title }}</h2>
+          <p class="overview">{{ movie.overview }}</p>
+
+          <div class="card-actions">
+            {% if movie.trailer %}
+            <a href="{{ movie.trailer }}" target="_blank" class="trailer-btn">Trailer</a>
+            {% endif %}
+            <button class="details-btn" data-pool="recs" data-idx="{{ loop.index0 }}">Details</button>
+          </div>
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+
+    {% elif searched_movie %}
+    <div class="empty-state">
+      <div class="empty-state-icon">◎</div>
+      <p>No results found for "{{ searched_movie }}".<br>Try a different title.</p>
+    </div>
+    {% endif %}
+
+  </div><!-- /.container -->
+
+
+  <!-- ── Footer ─────────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <p>
+      Created by
+    <a href="https://github.com/Adityajhinjha" target="_blank">
+      @Adityajhinjha
+      </a>
+    </p>
+  </footer>
+
+
+  <!-- ── Modal ───────────────────────────────────────────────────────── -->
+  <div id="movieModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-content">
+
+      <button class="close" onclick="closeModal()" aria-label="Close">&times;</button>
+
+      <h2 id="modalTitle"></h2>
+      <div id="modalGenres" class="modal-genres"></div>
+      <div class="modal-divider"></div>
+      <p id="modalOverview"></p>
+
+      <div class="modal-meta">
+        <div class="meta-item">
+          <div class="meta-label">Rating</div>
+          <div class="meta-value" id="modalRating"></div>
+        </div>
+
+        <div class="meta-item" id="releaseRow">
+          <div class="meta-label">Year</div>
+          <div class="meta-value" id="modalRelease"></div>
+        </div>
+
+        <div class="meta-item" id="runtimeRow">
+          <div class="meta-label">Runtime</div>
+          <div class="meta-value" id="modalRuntime"></div>
+        </div>
+
+        <div class="meta-item" id="languageRow">
+          <div class="meta-label">Language</div>
+          <div class="meta-value" id="modalLanguage"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ── Movie data injected safely as JSON — no inline onclick quoting ─── -->
+  <script>
+    var MOVIE_DATA = {
+      trending: {{ trending_movies | tojson }},
+      recs: {{ movies | tojson }}
+    };
+
+    function openModal(pool, idx) {
+      var m = MOVIE_DATA[pool][idx];
+      if (!m) return;
+
+      document.getElementById('modalTitle').textContent = m.title || '';
+      document.getElementById('modalOverview').textContent = m.overview || '';
+
+      var rating = parseFloat(m.rating);
+      document.getElementById('modalRating').textContent =
+        '★ ' + (isNaN(rating) ? '—' : rating.toFixed(1));
+
+      // Year
+      var releaseRow = document.getElementById('releaseRow');
+      var rd = m.release_date || '';
+
+      if (rd && rd !== 'None' && rd !== 'null') {
+        document.getElementById('modalRelease').textContent = rd.split('-')[0];
+        releaseRow.style.display = 'block';
+      } else {
+        releaseRow.style.display = 'none';
+      }
+
+      // Runtime
+      var rr = document.getElementById('runtimeRow');
+      var rt = m.runtime;
+
+      if (rt && rt !== 'Not Available' && rt !== 'None' && rt !== null) {
+        document.getElementById('modalRuntime').textContent = rt + ' min';
+        rr.style.display = 'block';
+      } else {
+        rr.style.display = 'none';
+      }
+
+      // Language
+      var lr = document.getElementById('languageRow');
+      var lang = m.language || '';
+
+      if (lang && lang !== 'Not Available' && lang !== 'None') {
+        document.getElementById('modalLanguage').textContent = lang;
+        lr.style.display = 'block';
+      } else {
+        lr.style.display = 'none';
+      }
+
+      // Genres
+      var genresEl = document.getElementById('modalGenres');
+      genresEl.innerHTML = '';
+
+      var genres = m.genres || [];
+
+      if (genres.length) {
+        genres.forEach(function(g) {
+          var tag = document.createElement('span');
+          tag.className = 'genre-tag';
+          tag.textContent = g;
+          genresEl.appendChild(tag);
+        });
+
+        genresEl.style.display = 'flex';
+      } else {
+        genresEl.style.display = 'none';
+      }
+
+      document.getElementById('movieModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('movieModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    // Wire up all Details buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.details-btn[data-pool]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          openModal(btn.dataset.pool, parseInt(btn.dataset.idx));
+        });
+      });
+    });
+
+    document.getElementById('movieModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeModal();
+    });
+  </script>
+
+</body>
+</html>

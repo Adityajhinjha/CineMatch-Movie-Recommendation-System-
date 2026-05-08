@@ -12,9 +12,36 @@ The project combines:
 
 ---
 
+# 🌐 Live Demo
+
+https://cinematch-movie-recommendation-system-production.up.railway.app
+
+---
+
+# 📸 Screenshots
+
+## 🏠 Homepage
+
+![Homepage](screenshots/home.png)
+
+---
+
+## 🔥 Trending Movies
+
+![Trending Movies](screenshots/trending.png)
+
+---
+
+## 🎯 Personalized Recommendations
+
+![Recommendations](screenshots/recommendations.png)
+
+---
+
 # 🚀 Features
 
 ## ✅ Hybrid Recommendation Engine
+
 The system first tries to recommend movies using a locally trained ML similarity model.
 
 If no results are found, it falls back to TMDB API recommendations.
@@ -22,6 +49,7 @@ If no results are found, it falls back to TMDB API recommendations.
 ---
 
 ## ✅ Content-Based Filtering
+
 Uses:
 - NLP preprocessing
 - Tags generation
@@ -33,11 +61,13 @@ to recommend similar movies.
 ---
 
 ## ✅ Trending Movies Section
+
 Displays daily trending movies fetched directly from TMDB API.
 
 ---
 
 ## ✅ Detailed Movie Information
+
 Each movie card includes:
 - Poster
 - Rating
@@ -51,6 +81,7 @@ Each movie card includes:
 ---
 
 ## ✅ Optimized Performance
+
 Several optimizations have been implemented:
 
 - Float32 similarity matrix
@@ -62,6 +93,7 @@ Several optimizations have been implemented:
 ---
 
 ## ✅ Cinematic UI
+
 Modern responsive frontend inspired by streaming platforms like:
 - Netflix
 - MUBI
@@ -101,6 +133,11 @@ Movie-Recommendation-System/
 ├── templates/
 │   └── index.html
 │
+├── screenshots/
+│   ├── home.png
+│   ├── trending.png
+│   └── recommendations.png
+│
 ├── app.py
 ├── movie_recommender.py
 ├── tmdb_api.py
@@ -125,8 +162,9 @@ Movie-Recommendation-System/
 ## 1️⃣ Clone the repository
 
 ```bash
-git clone https://github.com/your-username/movie-recommendation-system.git
-cd movie-recommendation-system
+git clone https://github.com/Adityajhinjha/CineMatch-Movie-Recommendation-System-.git
+
+cd CineMatch-Movie-Recommendation-System-
 ```
 
 ---
@@ -174,36 +212,52 @@ This generates:
 # 🌟 Future Scope
 
 ## ✅ Collaborative Filtering
+
 Add user-based recommendations using:
 - User ratings
 - Watch history
 - Matrix factorization
 
+---
+
 ## ✅ User Authentication
+
 Allow users to:
 - Create accounts
 - Save favorite movies
 - Build watchlists
 
+---
+
 ## ✅ Personalized Recommendations
+
 Recommend movies based on:
 - User preferences
 - Genre interests
 - Previously watched movies
 
+---
+
 ## ✅ AI Chatbot Integration
+
 Integrate an AI assistant for:
 - Mood-based recommendations
 - Conversational movie discovery
 
+---
+
 ## ✅ Advanced Search System
+
 Add:
 - Autocomplete
 - Fuzzy search
 - Genre filters
 - Actor/director filters
 
+---
+
 ## ✅ Vector Database Integration
+
 Use:
 - FAISS
 - Pinecone
@@ -229,7 +283,6 @@ Dataset used:
 
 ---
 
-## Author
+# 👨‍💻 Author
 
 Aditya Jhinjha
-

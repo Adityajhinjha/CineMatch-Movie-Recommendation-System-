@@ -98,39 +98,133 @@ def _build_full_detail(movie: dict) -> dict | None:
         print("_build_full_detail error:", e)
         return None
 
-
-def tmdb_recommend(movie_name: str) -> list[dict]:
-    """Return up to 5 TMDB recommendations, fetched in parallel."""
+def _fetch_tv_trailer(tv_id: int) -> str:
     try:
-        data = _get("https://api.themoviedb.org/3/search/movie",
-                    {"query": movie_name})
-        if not data.get("results"):
-            return []
+        data = _get(f"https://api.themoviedb.org/3/tv/{tv_id}/videos")
+        for v in data.get("results", []):
+            if v.get("site") == "YouTube" and v.get("type") == "Trailer":
+                return f"https://www.youtube.com/watch?v={v['key']}"
+    except Exception as e:
+        print("TV Trailer error:", e)
+    return ""
 
-        movie_id = data["results"][0]["id"]
 
-        rec_data = _get(f"https://api.themoviedb.org/3/movie/{movie_id}/recommendations")
-        results  = rec_data.get("results", [])
+def _build_tv_detail(tv_show: dict) -> dict | None:
+    """Fetch per-show details + trailer in one shot (called concurrently)."""
+    try:
+        tv_id = tv_show["id"]
+        details_data = _get(f"https://api.themoviedb.org/3/tv/{tv_id}")
+        trailer      = _fetch_tv_trailer(tv_id)
+        genres = [g["name"] for g in details_data.get("genres", [])]
+
+        seasons = details_data.get("number_of_seasons", 1)
+        runtime_str = f"{seasons} Season" if seasons == 1 else f"{seasons} Seasons"
+
+        return {
+            "title":        tv_show.get("name") or details_data.get("name"),
+            "overview":     tv_show.get("overview") or details_data.get("overview"),
+            "rating":       tv_show.get("vote_average") or details_data.get("vote_average"),
+            "poster":       _poster(tv_show.get("poster_path") or details_data.get("poster_path")),
+            "trailer":      trailer,
+            "release_date": details_data.get("first_air_date") or tv_show.get("first_air_date"),
+            "runtime":      runtime_str,
+            "language":     (details_data.get("original_language") or "").upper() or "Not Available",
+            "genres":       genres,
+            "media_type":   "tv",
+        }
+    except Exception as e:
+        print("_build_tv_detail error:", e)
+        return None
+
+
+def tmdb_search_multi(query: str) -> list[dict]:
+    """Search TMDB for movies/TV shows matching query, returning top 7 items."""
+    try:
+        data = _get("https://api.themoviedb.org/3/search/multi", {"query": query})
+        results = data.get("results", [])
+        parsed = []
+        for item in results:
+            media_type = item.get("media_type")
+            if media_type not in ("movie", "tv"):
+                continue
+
+            title = item.get("title") if media_type == "movie" else item.get("name")
+            date_str = item.get("release_date") if media_type == "movie" else item.get("first_air_date")
+            year = date_str.split("-")[0] if date_str else ""
+
+            parsed.append({
+                "id": item["id"],
+                "title": title,
+                "year": year,
+                "media_type": media_type,
+                "poster": _poster(item.get("poster_path")),
+            })
+            if len(parsed) >= 7:
+                break
+        return parsed
+    except Exception as e:
+        print("tmdb_search_multi error:", e)
+        return []
+
+
+def tmdb_recommend_by_id(tmdb_id: int, media_type: str) -> list[dict]:
+    """Fetch recommendations for a specific movie or TV show by TMDB ID."""
+    try:
+        if media_type == "tv":
+            rec_url = f"https://api.themoviedb.org/3/tv/{tmdb_id}/recommendations"
+            sim_url = f"https://api.themoviedb.org/3/tv/{tmdb_id}/similar"
+            builder = _build_tv_detail
+        else:
+            rec_url = f"https://api.themoviedb.org/3/movie/{tmdb_id}/recommendations"
+            sim_url = f"https://api.themoviedb.org/3/movie/{tmdb_id}/similar"
+            builder = _build_full_detail
+
+        rec_data = _get(rec_url)
+        results = rec_data.get("results", [])
 
         if not results:
-            sim_data = _get(f"https://api.themoviedb.org/3/movie/{movie_id}/similar")
-            results  = sim_data.get("results", [])
-        movies_to_fetch = results[:5]
+            sim_data = _get(sim_url)
+            results = sim_data.get("results", [])
+
+        items_to_fetch = results[:5]
         recommendations = []
 
         with ThreadPoolExecutor(max_workers=5) as pool:
-            futures = {pool.submit(_build_full_detail, m): m
-                       for m in movies_to_fetch}
+            futures = {pool.submit(builder, item): item for item in items_to_fetch}
             for future in as_completed(futures):
                 detail = future.result()
                 if detail:
                     recommendations.append(detail)
 
         return recommendations
+    except Exception as e:
+        print("tmdb_recommend_by_id error:", e)
+        return []
 
+
+def tmdb_recommend(movie_name: str) -> list[dict]:
+    """Return up to 5 TMDB recommendations, fetched in parallel."""
+    try:
+        data = _get("https://api.themoviedb.org/3/search/multi",
+                    {"query": movie_name})
+        results = data.get("results", [])
+        if not results:
+            return []
+
+        target = None
+        for r in results:
+            if r.get("media_type") in ("movie", "tv"):
+                target = r
+                break
+
+        if not target:
+            return []
+
+        return tmdb_recommend_by_id(target["id"], target["media_type"])
     except Exception as e:
         print("tmdb_recommend error:", e)
         return []
+    
     
 def get_trending_movies() -> list[dict]:
     global _trending_cache

@@ -127,6 +127,8 @@ h1 em {
 
 /* ── Search box ────────────────────────────────────────────────────────── */
 .search-box {
+  position: relative;
+  z-index: 1000;
   display: flex;
   justify-content: center;
   align-items: center;

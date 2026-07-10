@@ -5,9 +5,12 @@ from functools import lru_cache
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dotenv import load_dotenv
 
-load_dotenv()
+current_dir = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(current_dir, ".env"))
 
 API_KEY = os.getenv("TMDB_API_KEY")
+if not API_KEY:
+    print("WARNING: TMDB_API_KEY is not set in the .env file. API requests will fail.")
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 
 _trending_cache: dict = {"data": None, "ts": 0.0}

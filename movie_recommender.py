@@ -6,10 +6,9 @@ with open('movies.pkl', 'rb') as f:
     movies = pickle.load(f)           
 
 with open('similarity.pkl', 'rb') as f:
-    _sim64 = pickle.load(f)
+    similarity_data = pickle.load(f)
 
-    similarity = _sim64.astype(np.float32)
-    del _sim64                      
+top_indices = similarity_data['indices']
 
 
 def recommend(movie: str) -> list[str]:
@@ -23,22 +22,16 @@ def recommend(movie: str) -> list[str]:
     idx = matches.index[0]
 
 
-    row = similarity[idx]                         
-    top_idx = np.argpartition(row, -6)[-6:]     
-    top_idx = top_idx[np.argsort(row[top_idx])[::-1]] 
+    similar_indices = top_indices[idx][:5]
 
     return [
         movies.iloc[i].title
-        for i in top_idx
-        if i != idx
-    ][:5]
+        for i in similar_indices
+    ]
 
 
 
 if __name__ == '__main__':
-    print("Re-saving similarity.pkl as float32 …")
-    with open('similarity.pkl', 'rb') as f:
-        sim = pickle.load(f).astype(np.float32)
-    with open('similarity.pkl', 'wb') as f:
-        pickle.dump(sim, f)
-    print(f"Done — {sim.nbytes / 1024**2:.1f} MB (was 176 MB)")
+    print("Testing loaded similarity arrays:")
+    print("Indices shape:", top_indices.shape)
+    print("Example matches for first movie:", [movies.iloc[i].title for i in top_indices[0][:5]])

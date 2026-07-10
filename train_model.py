@@ -3,7 +3,7 @@ import numpy as np
 import ast
 import pickle
 
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 
@@ -32,10 +32,7 @@ movies = movies[['movie_id',
 # REMOVE MISSING VALUES
 
 movies.dropna(inplace=True)
-
-# REDUCE DATASET SIZE FOR DEPLOYMENT
-
-movies = movies.head(2500)
+movies.reset_index(drop=True, inplace=True)
 
 
 # HELPER FUNCTIONS
@@ -115,10 +112,10 @@ movies['crew'] = movies['crew'].apply(
 
 movies['tags'] = (
     movies['overview'] +
-    movies['genres'] +
-    movies['keywords'] +
-    movies['cast'] +
-    movies['crew']
+    movies['genres'] * 3 +
+    movies['keywords'] * 2 +
+    movies['cast'] * 2 +
+    movies['crew'] * 4
 )
 
 
@@ -133,62 +130,68 @@ new_df['tags'] = new_df['tags'].apply(lambda x: x.lower())
 
 # VECTORIZATION
 
-cv = CountVectorizer(
+tfidf = TfidfVectorizer(
     max_features=5000,
     stop_words='english'
 )
 
-vectors = cv.fit_transform(new_df['tags']).toarray()
+vectors = tfidf.fit_transform(new_df['tags']).toarray()
 
 
 # COSINE SIMILARITY
 
-similarity = cosine_similarity(vectors)
+similarity_matrix = cosine_similarity(vectors)
+
+# Precompute and store only top 50 matches to save disk and memory space
+top_indices = []
+top_scores = []
+
+for i in range(len(similarity_matrix)):
+    scores = similarity_matrix[i]
+    # Sort in descending order of similarity
+    sorted_indices = np.argsort(scores)[::-1]
+    # Exclude the movie itself (index i)
+    filtered_indices = [idx for idx in sorted_indices if idx != i]
+    # Keep top 50
+    top_indices.append(filtered_indices[:50])
+    top_scores.append(scores[filtered_indices[:50]].astype(np.float16))
+
+top_indices = np.array(top_indices, dtype=np.int16)
+top_scores = np.array(top_scores, dtype=np.float16)
+
+similarity_data = {
+    'indices': top_indices,
+    'scores': top_scores
+}
 
 
 # RECOMMEND FUNCTION
 
 def recommend(movie):
-
-    movie = movie.lower()
-
+    movie = movie.lower().strip()
     matching_movies = new_df[
-        new_df['title'].str.lower().str.contains(movie)
+        new_df['title'].str.lower().str.contains(movie, regex=False)
     ]
-
     if matching_movies.empty:
         return []
-
     index = matching_movies.index[0]
-
-    distances = similarity[index]
-
-    movies_list = sorted(
-        list(enumerate(distances)),
-        reverse=True,
-        key=lambda x: x[1]
-    )[1:6]
-
+    
+    similar_indices = top_indices[index][:5]
     recommended_movies = []
-
-    for i in movies_list:
-
-        recommended_movies.append(
-            new_df.iloc[i[0]].title
-        )
-
+    for i in similar_indices:
+        recommended_movies.append(new_df.iloc[i].title)
     return recommended_movies
 
 
 # TEST
 
-recommend("Avatar")
+print("Testing local recommendation for 'Avatar':")
+print(recommend("Avatar"))
 
 
 # SAVE FILES
 
 pickle.dump(new_df, open('movies.pkl', 'wb'))
-
-pickle.dump(similarity, open('similarity.pkl', 'wb'))
+pickle.dump(similarity_data, open('similarity.pkl', 'wb'))
 
 print("\nModel files saved successfully.")

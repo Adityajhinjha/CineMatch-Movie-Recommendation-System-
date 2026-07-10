@@ -186,10 +186,10 @@ def tmdb_recommend_by_id(tmdb_id: int, media_type: str) -> list[dict]:
             sim_data = _get(sim_url)
             results = sim_data.get("results", [])
 
-        items_to_fetch = results[:5]
+        items_to_fetch = results[:10]
         recommendations = []
 
-        with ThreadPoolExecutor(max_workers=5) as pool:
+        with ThreadPoolExecutor(max_workers=10) as pool:
             futures = {pool.submit(builder, item): item for item in items_to_fetch}
             for future in as_completed(futures):
                 detail = future.result()

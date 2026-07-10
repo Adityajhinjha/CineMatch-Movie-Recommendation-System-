@@ -12,7 +12,7 @@ top_indices = similarity_data['indices']
 
 
 def recommend(movie: str) -> list[str]:
-    """Return up to 5 titles most similar to *movie* (case-insensitive)."""
+    """Return up to 10 titles most similar to *movie* (case-insensitive)."""
     movie = movie.lower().strip()
 
     matches = movies[movies['title'].str.lower().str.contains(movie, regex=False)]
@@ -22,7 +22,7 @@ def recommend(movie: str) -> list[str]:
     idx = matches.index[0]
 
 
-    similar_indices = top_indices[idx][:5]
+    similar_indices = top_indices[idx][:10]
 
 
     return [
@@ -32,13 +32,13 @@ def recommend(movie: str) -> list[str]:
 
 
 def recommend_by_id(movie_id: int) -> list[str]:
-    """Return up to 5 titles most similar to the movie with TMDB ID *movie_id* (offline)."""
+    """Return up to 10 titles most similar to the movie with TMDB ID *movie_id* (offline)."""
     matches = movies[movies['movie_id'] == movie_id]
     if matches.empty:
         return []
 
     idx = matches.index[0]
-    similar_indices = top_indices[idx][:5]
+    similar_indices = top_indices[idx][:10]
 
     return [
         movies.iloc[i].title

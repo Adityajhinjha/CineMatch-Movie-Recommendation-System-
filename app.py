@@ -54,9 +54,9 @@ def home():
                 movie_data = tmdb_recommend(movie_name)
 
         if is_local and recommended:
-            # fetch all 5 details in parallel
+            # fetch all 10 details in parallel
             from concurrent.futures import ThreadPoolExecutor, as_completed
-            with ThreadPoolExecutor(max_workers=5) as pool:
+            with ThreadPoolExecutor(max_workers=10) as pool:
                 futures = {pool.submit(fetch_movie_details, m): m
                            for m in recommended}
                 for future in as_completed(futures):

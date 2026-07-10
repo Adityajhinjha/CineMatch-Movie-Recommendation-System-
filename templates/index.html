@@ -18,16 +18,20 @@
     </div>
 
     <!-- ── Search ────────────────────────────────────────────────────── -->
-    <form method="POST" class="search-box" autocomplete="off">
+    <form method="POST" class="search-box" autocomplete="off" id="searchForm">
       <div class="search-wrap">
         <input
           type="text"
           name="movie"
+          id="searchInput"
           placeholder="e.g. Inception, The Godfather…"
           value="{{ searched_movie }}"
           required
         >
         <span class="search-icon">⌕</span>
+        <input type="hidden" name="tmdb_id" id="searchTmbId">
+        <input type="hidden" name="media_type" id="searchMediaType">
+        <div id="autocompleteResults" class="autocomplete-dropdown"></div>
       </div>
       <button type="submit">Discover</button>
     </form>
@@ -201,7 +205,8 @@
       var rt = m.runtime;
 
       if (rt && rt !== 'Not Available' && rt !== 'None' && rt !== null) {
-        document.getElementById('modalRuntime').textContent = rt + ' min';
+        var displayText = (typeof rt === 'number' || !isNaN(rt)) ? rt + ' min' : rt;
+        document.getElementById('modalRuntime').textContent = displayText;
         rr.style.display = 'block';
       } else {
         rr.style.display = 'none';
@@ -261,6 +266,86 @@
 
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') closeModal();
+    });
+
+    // ── Autocomplete Logic ───────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function() {
+      var searchInput = document.getElementById('searchInput');
+      var autocompleteResults = document.getElementById('autocompleteResults');
+      var searchTmbId = document.getElementById('searchTmbId');
+      var searchMediaType = document.getElementById('searchMediaType');
+      var searchForm = document.getElementById('searchForm');
+      var debounceTimer = null;
+
+      searchInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        var query = searchInput.value && searchInput.value.trim ? searchInput.value.trim() : searchInput.value;
+
+        // Clear hidden fields if user modifies text directly
+        searchTmbId.value = '';
+        searchMediaType.value = '';
+
+        if (!query || query.length < 2) {
+          autocompleteResults.innerHTML = '';
+          autocompleteResults.classList.remove('active');
+          return;
+        }
+
+        debounceTimer = setTimeout(function() {
+          fetch('/autocomplete?q=' + encodeURIComponent(query))
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+              autocompleteResults.innerHTML = '';
+              if (data && data.length > 0) {
+                data.forEach(function(item) {
+                  var div = document.createElement('div');
+                  div.className = 'autocomplete-item';
+                  
+                  var imgHtml = item.poster 
+                    ? '<img class="autocomplete-poster" src="' + item.poster + '" alt="">'
+                    : '<div class="autocomplete-poster-placeholder"></div>';
+
+                  var label = item.media_type === 'tv' ? 'TV Show' : 'Movie';
+                  var yearText = item.year ? ' (' + item.year + ')' : '';
+
+                  div.innerHTML = imgHtml + 
+                    '<div class="autocomplete-info">' +
+                      '<div class="autocomplete-title-wrap">' +
+                        '<span class="autocomplete-title">' + item.title + '</span>' +
+                        '<span class="autocomplete-year">' + yearText + '</span>' +
+                      '</div>' +
+                      '<span class="autocomplete-type">' + label + '</span>' +
+                    '</div>';
+
+                  div.addEventListener('click', function() {
+                    searchInput.value = item.title;
+                    searchTmbId.value = item.id;
+                    searchMediaType.value = item.media_type;
+                    autocompleteResults.innerHTML = '';
+                    autocompleteResults.classList.remove('active');
+                    searchForm.submit();
+                  });
+
+                  autocompleteResults.appendChild(div);
+                });
+                autocompleteResults.classList.add('active');
+              } else {
+                autocompleteResults.classList.remove('active');
+              }
+            })
+            .catch(function(err) {
+              console.error('Autocomplete fetch error:', err);
+            });
+        }, 250);
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (e.target !== searchInput && e.target !== autocompleteResults && !autocompleteResults.contains(e.target)) {
+          autocompleteResults.innerHTML = '';
+          autocompleteResults.classList.remove('active');
+        }
+      });
     });
   </script>
 

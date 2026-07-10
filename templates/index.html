@@ -177,12 +177,36 @@
   </div>
 
 
-  <!-- ── Movie data injected safely as JSON — no inline onclick quoting ─── -->
   <script>
     var MOVIE_DATA = {
       trending: {{ trending_movies | tojson }},
       recs: {{ movies | tojson }}
     };
+
+    function getProviderSearchUrl(providerName, movieTitle, tmdbUrl) {
+      var query = encodeURIComponent(movieTitle);
+      var name = providerName.toLowerCase();
+      
+      if (name.includes('netflix')) {
+        return 'https://www.netflix.com/search?q=' + query;
+      } else if (name.includes('prime video') || name.includes('amazon')) {
+        return 'https://www.amazon.com/s?k=' + query + '&i=instant-video';
+      } else if (name.includes('disney') || name.includes('hotstar')) {
+        return 'https://www.hotstar.com/in/explore?search_query=' + query;
+      } else if (name.includes('jiocinema')) {
+        return 'https://www.jiocinema.com/search/' + query;
+      } else if (name.includes('apple')) {
+        return 'https://tv.apple.com/search?term=' + query;
+      } else if (name.includes('google play')) {
+        return 'https://play.google.com/store/search?q=' + query + '&c=movies';
+      } else if (name.includes('zee5')) {
+        return 'https://www.zee5.com/search?q=' + query;
+      } else if (name.includes('youtube')) {
+        return 'https://www.youtube.com/results?search_query=' + query + '+movie';
+      }
+      
+      return tmdbUrl || ('https://www.google.com/search?q=watch+' + query + '+on+' + encodeURIComponent(providerName));
+    }
 
     function openModal(pool, idx) {
       var m = MOVIE_DATA[pool][idx];
@@ -262,8 +286,15 @@
             img.className = 'provider-logo';
             img.src = p.logo;
             img.alt = p.name;
-            img.title = p.name;
-            providersList.appendChild(img);
+            img.title = 'Watch on ' + p.name;
+            
+            var link = document.createElement('a');
+            link.href = getProviderSearchUrl(p.name, m.title, p.tmdb_url);
+            link.target = '_blank';
+            link.className = 'provider-link';
+            link.appendChild(img);
+            
+            providersList.appendChild(link);
           }
         });
         if (providersList.children.length > 0) {

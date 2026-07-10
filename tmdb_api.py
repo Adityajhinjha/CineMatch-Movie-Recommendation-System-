@@ -44,11 +44,13 @@ def _extract_watch_providers(watch_data: dict) -> list[dict]:
     try:
         # Prioritize India (IN), fall back to US
         providers = watch_data.get("IN") or watch_data.get("US") or {}
+        tmdb_url = providers.get("link")
         flatrate = providers.get("flatrate", [])
         return [
             {
                 "name": p.get("provider_name"),
-                "logo": f"https://image.tmdb.org/t/p/w92{p.get('logo_path')}" if p.get("logo_path") else None
+                "logo": f"https://image.tmdb.org/t/p/w92{p.get('logo_path')}" if p.get("logo_path") else None,
+                "tmdb_url": tmdb_url
             }
             for p in flatrate
         ]

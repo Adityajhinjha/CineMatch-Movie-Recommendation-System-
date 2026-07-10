@@ -24,10 +24,27 @@ def recommend(movie: str) -> list[str]:
 
     similar_indices = top_indices[idx][:5]
 
+
     return [
         movies.iloc[i].title
         for i in similar_indices
     ]
+
+
+def recommend_by_id(movie_id: int) -> list[str]:
+    """Return up to 5 titles most similar to the movie with TMDB ID *movie_id* (offline)."""
+    matches = movies[movies['movie_id'] == movie_id]
+    if matches.empty:
+        return []
+
+    idx = matches.index[0]
+    similar_indices = top_indices[idx][:5]
+
+    return [
+        movies.iloc[i].title
+        for i in similar_indices
+    ]
+
 
 
 

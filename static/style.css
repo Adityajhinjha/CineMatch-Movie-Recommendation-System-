@@ -744,3 +744,44 @@ h1 em {
   margin-top: 4px;
   width: fit-content;
 }
+
+/* ── Watch Providers ────────────────────────────────────────────────────── */
+.watch-providers-row {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 4px;
+}
+
+.watch-providers-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ash);
+  font-weight: 600;
+}
+
+.watch-providers-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.provider-logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: help;
+}
+
+.provider-logo:hover {
+  transform: translateY(-2px) scale(1.08);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(201, 168, 76, 0.25);
+  border-color: rgba(201, 168, 76, 0.3);
+}

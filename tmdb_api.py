@@ -39,6 +39,24 @@ def _fetch_trailer(movie_id: int) -> str:
 def _poster(path: str | None) -> str:
     return f"https://image.tmdb.org/t/p/w500{path}" if path else ""
 
+
+def _extract_watch_providers(watch_data: dict) -> list[dict]:
+    try:
+        # Prioritize India (IN), fall back to US
+        providers = watch_data.get("IN") or watch_data.get("US") or {}
+        flatrate = providers.get("flatrate", [])
+        return [
+            {
+                "name": p.get("provider_name"),
+                "logo": f"https://image.tmdb.org/t/p/w92{p.get('logo_path')}" if p.get("logo_path") else None
+            }
+            for p in flatrate
+        ]
+    except Exception as e:
+        print("Error extracting watch providers:", e)
+        return []
+
+
 @lru_cache(maxsize=512)
 def fetch_movie_details(movie_name: str) -> dict | None:
     """Search TMDB for *movie_name* and return a full detail dict (cached)."""
@@ -52,8 +70,21 @@ def fetch_movie_details(movie_name: str) -> dict | None:
         movie    = results[0]
         movie_id = movie["id"]
 
-        details  = _get(f"https://api.themoviedb.org/3/movie/{movie_id}")
-        trailer  = _fetch_trailer(movie_id)
+        details  = _get(f"https://api.themoviedb.org/3/movie/{movie_id}",
+                        {"append_to_response": "videos,watch/providers"})
+        
+        # Extract trailer
+        videos = details.get("videos", {}).get("results", [])
+        trailer = ""
+        for v in videos:
+            if v.get("site") == "YouTube" and v.get("type") == "Trailer":
+                trailer = f"https://www.youtube.com/watch?v={v['key']}"
+                break
+                
+        # Extract watch providers
+        watch_data = details.get("watch/providers", {}).get("results", {})
+        watch_providers = _extract_watch_providers(watch_data)
+        
         genres   = [g["name"] for g in details.get("genres", [])]
 
         return {
@@ -67,6 +98,7 @@ def fetch_movie_details(movie_name: str) -> dict | None:
             "runtime":      details.get("runtime") or "Not Available",
             "language":     (details.get("original_language") or "").upper() or "Not Available",
             "genres":       genres,
+            "watch_providers": watch_providers,
         }
     except Exception as e:
         print("fetch_movie_details error:", e)
@@ -77,8 +109,20 @@ def _build_full_detail(movie: dict) -> dict | None:
     try:
         movie_id = movie["id"]
 
-        details_data = _get(f"https://api.themoviedb.org/3/movie/{movie_id}")
-        trailer      = _fetch_trailer(movie_id)
+        details_data = _get(f"https://api.themoviedb.org/3/movie/{movie_id}",
+                            {"append_to_response": "videos,watch/providers"})
+        
+        # Extract trailer
+        videos = details_data.get("videos", {}).get("results", [])
+        trailer = ""
+        for v in videos:
+            if v.get("site") == "YouTube" and v.get("type") == "Trailer":
+                trailer = f"https://www.youtube.com/watch?v={v['key']}"
+                break
+                
+        # Extract watch providers
+        watch_data = details_data.get("watch/providers", {}).get("results", {})
+        watch_providers = _extract_watch_providers(watch_data)
 
         genres = [g["name"] for g in details_data.get("genres", [])]
 
@@ -93,6 +137,7 @@ def _build_full_detail(movie: dict) -> dict | None:
             "language":     (details_data.get("original_language") or "").upper()
                             or "Not Available",
             "genres":       genres,
+            "watch_providers": watch_providers,
         }
     except Exception as e:
         print("_build_full_detail error:", e)
@@ -113,8 +158,21 @@ def _build_tv_detail(tv_show: dict) -> dict | None:
     """Fetch per-show details + trailer in one shot (called concurrently)."""
     try:
         tv_id = tv_show["id"]
-        details_data = _get(f"https://api.themoviedb.org/3/tv/{tv_id}")
-        trailer      = _fetch_tv_trailer(tv_id)
+        details_data = _get(f"https://api.themoviedb.org/3/tv/{tv_id}",
+                            {"append_to_response": "videos,watch/providers"})
+        
+        # Extract trailer
+        videos = details_data.get("videos", {}).get("results", [])
+        trailer = ""
+        for v in videos:
+            if v.get("site") == "YouTube" and v.get("type") == "Trailer":
+                trailer = f"https://www.youtube.com/watch?v={v['key']}"
+                break
+                
+        # Extract watch providers
+        watch_data = details_data.get("watch/providers", {}).get("results", {})
+        watch_providers = _extract_watch_providers(watch_data)
+
         genres = [g["name"] for g in details_data.get("genres", [])]
 
         seasons = details_data.get("number_of_seasons", 1)
@@ -131,6 +189,7 @@ def _build_tv_detail(tv_show: dict) -> dict | None:
             "language":     (details_data.get("original_language") or "").upper() or "Not Available",
             "genres":       genres,
             "media_type":   "tv",
+            "watch_providers": watch_providers,
         }
     except Exception as e:
         print("_build_tv_detail error:", e)

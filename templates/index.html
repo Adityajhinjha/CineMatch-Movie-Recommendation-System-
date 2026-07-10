@@ -145,6 +145,12 @@
       <div class="modal-divider"></div>
       <p id="modalOverview"></p>
 
+      <!-- Where to Watch -->
+      <div id="watchProvidersRow" class="watch-providers-row" style="display: none;">
+        <div class="watch-providers-label">Where to Watch</div>
+        <div id="watchProvidersList" class="watch-providers-list"></div>
+      </div>
+
       <div class="modal-meta">
         <div class="meta-item">
           <div class="meta-label">Rating</div>
@@ -240,6 +246,33 @@
         genresEl.style.display = 'flex';
       } else {
         genresEl.style.display = 'none';
+      }
+
+      // Watch Providers
+      var providersRow = document.getElementById('watchProvidersRow');
+      var providersList = document.getElementById('watchProvidersList');
+      providersList.innerHTML = '';
+
+      var providers = m.watch_providers || [];
+
+      if (providers.length) {
+        providers.forEach(function(p) {
+          if (p.logo) {
+            var img = document.createElement('img');
+            img.className = 'provider-logo';
+            img.src = p.logo;
+            img.alt = p.name;
+            img.title = p.name;
+            providersList.appendChild(img);
+          }
+        });
+        if (providersList.children.length > 0) {
+          providersRow.style.display = 'block';
+        } else {
+          providersRow.style.display = 'none';
+        }
+      } else {
+        providersRow.style.display = 'none';
       }
 
       document.getElementById('movieModal').classList.add('open');

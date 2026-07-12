@@ -11,9 +11,20 @@ with open('similarity.pkl', 'rb') as f:
 top_indices = similarity_data['indices']
 
 
-def recommend(movie: str, movies_df=movies, top_idxs=top_indices) -> list[str]:
+import pandas as pd
+
+NUM_SIMILAR_TITLES = 10
+
+
+def recommend(movie: str, movies_df=None, top_idxs=None) -> list[str]:
     """Return up to 10 titles most similar to *movie* (case-insensitive)."""
     if not isinstance(movie, str):
+        return []
+
+    movies_df = movies if movies_df is None else movies_df
+    top_idxs = top_indices if top_idxs is None else top_idxs
+
+    if not isinstance(movies_df, pd.DataFrame) or not isinstance(top_idxs, np.ndarray):
         return []
 
     try:
@@ -26,19 +37,34 @@ def recommend(movie: str, movies_df=movies, top_idxs=top_indices) -> list[str]:
         if idx >= len(top_idxs):
             return []
 
-        similar_indices = top_idxs[idx][:10]
+        similar_indices = top_idxs[idx]
+        if len(similar_indices) == 0:
+            return []
+        similar_indices = similar_indices[:NUM_SIMILAR_TITLES]
 
         return [
             movies_df.iloc[i].title
             for i in similar_indices
         ]
+    except (AttributeError, ValueError, KeyError, IndexError) as e:
+        print(f"Linter-safe error in recommend: {e}")
+        return []
     except Exception as e:
-        print(f"Error in recommend: {e}")
+        print(f"Unexpected error in recommend: {e}")
         return []
 
 
-def recommend_by_id(movie_id: int, movies_df=movies, top_idxs=top_indices) -> list[str]:
+def recommend_by_id(movie_id: int, movies_df=None, top_idxs=None) -> list[str]:
     """Return up to 10 titles most similar to the movie with TMDB ID *movie_id* (offline)."""
+    if not isinstance(movie_id, (int, np.integer)) or movie_id <= 0:
+        return []
+
+    movies_df = movies if movies_df is None else movies_df
+    top_idxs = top_indices if top_idxs is None else top_idxs
+
+    if not isinstance(movies_df, pd.DataFrame) or not isinstance(top_idxs, np.ndarray):
+        return []
+
     try:
         matches = movies_df[movies_df['movie_id'] == movie_id]
         if matches.empty:
@@ -48,14 +74,20 @@ def recommend_by_id(movie_id: int, movies_df=movies, top_idxs=top_indices) -> li
         if idx >= len(top_idxs):
             return []
 
-        similar_indices = top_idxs[idx][:10]
+        similar_indices = top_idxs[idx]
+        if len(similar_indices) == 0:
+            return []
+        similar_indices = similar_indices[:NUM_SIMILAR_TITLES]
 
         return [
             movies_df.iloc[i].title
             for i in similar_indices
         ]
+    except (AttributeError, ValueError, KeyError, IndexError) as e:
+        print(f"Linter-safe error in recommend_by_id: {e}")
+        return []
     except Exception as e:
-        print(f"Error in recommend_by_id: {e}")
+        print(f"Unexpected error in recommend_by_id: {e}")
         return []
 
 

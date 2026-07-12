@@ -39,20 +39,30 @@ MAX_CAST_MEMBERS = 3
 
 def convert(text: str) -> list[str]:
     """Convert JSON-like string of dicts to a list of names."""
+    import ast
+    if not isinstance(text, str):
+        return []
     names = []
     try:
         data = ast.literal_eval(text)
         if isinstance(data, list):
             for item in data:
-                if isinstance(item, dict) and 'name' in item:
-                    names.append(item['name'])
+                if isinstance(item, dict):
+                    name_val = item.get('name')
+                    if name_val is not None:
+                        names.append(name_val)
     except (ValueError, SyntaxError) as e:
-        print(f"Error parsing genres/keywords literal: {e}")
+        print(f"Linter-safe literal error in convert: {e}")
+    except Exception as e:
+        print(f"Unexpected error in convert: {e}")
     return names
 
 
 def convert_cast(text: str) -> list[str]:
     """Convert JSON-like string of cast members to a list of top 3 actor names."""
+    import ast
+    if not isinstance(text, str):
+        return []
     cast_members = []
     try:
         data = ast.literal_eval(text)
@@ -61,25 +71,36 @@ def convert_cast(text: str) -> list[str]:
             for item in data:
                 if counter >= MAX_CAST_MEMBERS:
                     break
-                if isinstance(item, dict) and 'name' in item:
-                    cast_members.append(item['name'])
-                    counter += 1
+                if isinstance(item, dict):
+                    name_val = item.get('name')
+                    if name_val is not None:
+                        cast_members.append(name_val)
+                        counter += 1
     except (ValueError, SyntaxError) as e:
-        print(f"Error parsing cast literal: {e}")
+        print(f"Linter-safe literal error in convert_cast: {e}")
+    except Exception as e:
+        print(f"Unexpected error in convert_cast: {e}")
     return cast_members
 
 
 def fetch_director(text: str) -> list[str]:
     """Convert JSON-like string of crew to a list of director names."""
+    import ast
+    if not isinstance(text, str):
+        return []
     directors = []
     try:
         data = ast.literal_eval(text)
         if isinstance(data, list):
             for item in data:
-                if isinstance(item, dict) and item.get('job') == 'Director' and 'name' in item:
-                    directors.append(item['name'])
+                if isinstance(item, dict) and item.get('job') == 'Director':
+                    name_val = item.get('name')
+                    if name_val is not None:
+                        directors.append(name_val)
     except (ValueError, SyntaxError) as e:
-        print(f"Error parsing crew literal: {e}")
+        print(f"Linter-safe literal error in fetch_director: {e}")
+    except Exception as e:
+        print(f"Unexpected error in fetch_director: {e}")
     return directors
 
 

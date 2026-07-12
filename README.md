@@ -40,23 +40,22 @@ https://cinematch-movie-recommendation-system-production.up.railway.app
 
 # 🚀 Features
 
-## ✅ Hybrid Recommendation Engine
+## ✅ Blended Hybrid Recommendation Engine
 
-The system first tries to recommend movies using a locally trained ML similarity model.
-
-If no results are found, it falls back to TMDB API recommendations.
+The system uses a blended hybrid recommendation architecture:
+- Retrieves up to **5 local content-based recommendations** from your custom offline trained model.
+- Retrieves up to **5 live recommendations** from the TMDB API (capturing recent, trending, and collaborative filtering matches).
+- Combines and **deduplicates** them in real-time, preserving ranking order and falling back gracefully if one source is unavailable.
 
 ---
 
-## ✅ Content-Based Filtering
+## ✅ Optimized Content-Based Filtering
 
-Uses:
-- NLP preprocessing
-- Tags generation
-- Count Vectorization
-- Cosine Similarity
-
-to recommend similar movies.
+The custom local model uses:
+- NLP preprocessing (stemming, lowercasing, whitespace removal for names).
+- Structured tag weighting: `overview` ($3\times$), `genres` ($5\times$), `keywords` ($3\times$), `cast` ($2\times$), and `crew/director` ($4\times$) to prevent token volume dilution.
+- **TF-IDF Vectorization** (Term Frequency-Inverse Document Frequency) to extract key term signals.
+- **Cosine Similarity** to compute semantic proximity between movie feature vectors.
 
 ---
 

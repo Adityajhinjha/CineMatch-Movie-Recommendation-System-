@@ -110,10 +110,13 @@ movies['crew'] = movies['crew'].apply(
 
 # CREATE TAGS
 
+movies['title_words'] = movies['title'].apply(lambda x: x.split())
+
 movies['tags'] = (
-    movies['overview'] +
-    movies['genres'] * 3 +
-    movies['keywords'] * 2 +
+    movies['title_words'] * 2 +
+    movies['overview'] * 3 +
+    movies['genres'] * 5 +
+    movies['keywords'] * 3 +
     movies['cast'] * 2 +
     movies['crew'] * 4
 )

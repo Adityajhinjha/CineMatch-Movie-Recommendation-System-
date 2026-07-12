@@ -64,7 +64,6 @@
             {% if movie.trailer %}
             <a href="{{ movie.trailer }}" target="_blank" class="trailer-btn">Trailer</a>
             {% endif %}
-            <button class="details-btn" data-pool="trending" data-idx="{{ loop.index0 }}">Details</button>
           </div>
         </div>
 
@@ -105,7 +104,6 @@
             {% if movie.trailer %}
             <a href="{{ movie.trailer }}" target="_blank" class="trailer-btn">Trailer</a>
             {% endif %}
-            <button class="details-btn" data-pool="recs" data-idx="{{ loop.index0 }}">Details</button>
           </div>
         </div>
 
@@ -278,6 +276,7 @@
       providersList.innerHTML = '';
 
       var providers = m.watch_providers || [];
+      var hasProviders = false;
 
       if (providers.length) {
         providers.forEach(function(p) {
@@ -295,15 +294,21 @@
             link.appendChild(img);
             
             providersList.appendChild(link);
+            hasProviders = true;
           }
         });
-        if (providersList.children.length > 0) {
-          providersRow.style.display = 'block';
-        } else {
-          providersRow.style.display = 'none';
-        }
+      }
+
+      if (hasProviders) {
+        providersRow.style.display = 'block';
       } else {
-        providersRow.style.display = 'none';
+        var noOttSpan = document.createElement('span');
+        noOttSpan.style.color = 'var(--ash)';
+        noOttSpan.style.fontSize = '0.9rem';
+        noOttSpan.style.fontStyle = 'italic';
+        noOttSpan.textContent = 'Not available on OTT';
+        providersList.appendChild(noOttSpan);
+        providersRow.style.display = 'block';
       }
 
       document.getElementById('movieModal').classList.add('open');

@@ -11,39 +11,52 @@ with open('similarity.pkl', 'rb') as f:
 top_indices = similarity_data['indices']
 
 
-def recommend(movie: str) -> list[str]:
+def recommend(movie: str, movies_df=movies, top_idxs=top_indices) -> list[str]:
     """Return up to 10 titles most similar to *movie* (case-insensitive)."""
-    movie = movie.lower().strip()
-
-    matches = movies[movies['title'].str.lower().str.contains(movie, regex=False)]
-    if matches.empty:
+    if not isinstance(movie, str):
         return []
 
-    idx = matches.index[0]
+    try:
+        movie = movie.lower().strip()
+        matches = movies_df[movies_df['title'].str.lower().str.contains(movie, regex=False)]
+        if matches.empty:
+            return []
+
+        idx = matches.index[0]
+        if idx >= len(top_idxs):
+            return []
+
+        similar_indices = top_idxs[idx][:10]
+
+        return [
+            movies_df.iloc[i].title
+            for i in similar_indices
+        ]
+    except Exception as e:
+        print(f"Error in recommend: {e}")
+        return []
 
 
-    similar_indices = top_indices[idx][:10]
-
-
-    return [
-        movies.iloc[i].title
-        for i in similar_indices
-    ]
-
-
-def recommend_by_id(movie_id: int) -> list[str]:
+def recommend_by_id(movie_id: int, movies_df=movies, top_idxs=top_indices) -> list[str]:
     """Return up to 10 titles most similar to the movie with TMDB ID *movie_id* (offline)."""
-    matches = movies[movies['movie_id'] == movie_id]
-    if matches.empty:
+    try:
+        matches = movies_df[movies_df['movie_id'] == movie_id]
+        if matches.empty:
+            return []
+
+        idx = matches.index[0]
+        if idx >= len(top_idxs):
+            return []
+
+        similar_indices = top_idxs[idx][:10]
+
+        return [
+            movies_df.iloc[i].title
+            for i in similar_indices
+        ]
+    except Exception as e:
+        print(f"Error in recommend_by_id: {e}")
         return []
-
-    idx = matches.index[0]
-    similar_indices = top_indices[idx][:10]
-
-    return [
-        movies.iloc[i].title
-        for i in similar_indices
-    ]
 
 
 

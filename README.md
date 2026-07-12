@@ -14,7 +14,7 @@ The project combines:
 
 # 🌐 Live Demo
 
-https://cinematch-movie-recommendation-system-production.up.railway.app
+https://cine-match-movie-recommendation-sys-olive.vercel.app/
 
 ---
 

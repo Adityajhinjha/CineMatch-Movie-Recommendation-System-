@@ -47,7 +47,7 @@
 
     <div class="movies-container">
       {% for movie in trending_movies %}
-      <div class="movie-card">
+      <div class="movie-card" data-pool="trending" data-idx="{{ loop.index0 }}">
 
         <div class="poster-wrap">
           {% if movie.poster %}
@@ -88,7 +88,7 @@
 
     <div class="movies-container">
       {% for movie in movies %}
-      <div class="movie-card">
+      <div class="movie-card" data-pool="recs" data-idx="{{ loop.index0 }}">
 
         <div class="poster-wrap">
           {% if movie.poster %}
@@ -311,17 +311,47 @@
     }
 
     function closeModal() {
-      document.getElementById('movieModal').classList.remove('open');
-      document.body.style.overflow = '';
+      var modal = document.getElementById('movieModal');
+      modal.classList.add('closing');
+      setTimeout(function() {
+        modal.classList.remove('open');
+        modal.classList.remove('closing');
+        document.body.style.overflow = '';
+      }, 300);
     }
 
-    // Wire up all Details buttons
+    // Wire up movie cards and trailer buttons
     document.addEventListener('DOMContentLoaded', function() {
-      document.querySelectorAll('.details-btn[data-pool]').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          openModal(btn.dataset.pool, parseInt(btn.dataset.idx));
+      // Wire up clicks on the entire card
+      document.querySelectorAll('.movie-card[data-pool]').forEach(function(card) {
+        card.addEventListener('click', function(e) {
+          // If click is on or inside trailer button, don't open modal
+          if (e.target.closest('.trailer-btn')) {
+            return;
+          }
+          openModal(card.dataset.pool, parseInt(card.dataset.idx));
         });
       });
+    });
+
+    // Swipe-to-close gesture support for touch screens
+    document.addEventListener('DOMContentLoaded', function() {
+      var touchStartY = 0;
+      var touchEndY = 0;
+      var modalContent = document.querySelector('.modal-content');
+      if (!modalContent) return;
+
+      modalContent.addEventListener('touchstart', function(e) {
+        touchStartY = e.changedTouches[0].screenY;
+      }, {passive: true});
+
+      modalContent.addEventListener('touchend', function(e) {
+        touchEndY = e.changedTouches[0].screenY;
+        // Swipe down of at least 80px when modal content is scrolled to the top
+        if (touchEndY - touchStartY > 80 && modalContent.scrollTop === 0) {
+          closeModal();
+        }
+      }, {passive: true});
     });
 
     document.getElementById('movieModal').addEventListener('click', function(e) {

@@ -269,13 +269,12 @@ h1 em {
   z-index: 1;
 }
 
-.movie-card:hover {
-  transform: translateY(-10px) scale(1.01);
-  box-shadow: 0 32px 64px rgba(0,0,0,0.55), 0 0 0 1px rgba(201,168,76,0.15);
-  border-color: rgba(201,168,76,0.2);
+/* Active touch state for cards */
+.movie-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+  border-color: rgba(201,168,76,0.3);
 }
-
-.movie-card:hover::before { opacity: 1; }
 
 /* Poster */
 .poster-wrap {
@@ -295,10 +294,7 @@ h1 em {
   filter: brightness(0.92) saturate(0.85);
 }
 
-.movie-card:hover img {
-  transform: scale(1.06);
-  filter: brightness(1) saturate(1);
-}
+/* Image scaling handled in hover queries */
 
 /* Rating badge */
 .rating-badge {
@@ -390,11 +386,8 @@ h1 em {
   font-size: 0.65rem;
 }
 
-.trailer-btn:hover {
-  background: rgba(224,82,82,0.12);
-  border-color: var(--red);
-  color: var(--red);
-  transform: translateY(-2px);
+.trailer-btn:active {
+  transform: scale(0.95);
 }
 
 .details-btn {
@@ -412,16 +405,15 @@ h1 em {
   transition: background 0.25s, border-color 0.25s, color 0.25s, transform 0.2s;
 }
 
-.details-btn:hover {
-  background: rgba(201,168,76,0.08);
-  border-color: rgba(201,168,76,0.4);
-  color: var(--gold);
-  transform: translateY(-2px);
+.details-btn:active {
+  transform: scale(0.95);
 }
 
 /* ── Modal ─────────────────────────────────────────────────────────────── */
 .modal {
-  display: none;
+  display: flex;
+  visibility: hidden;
+  opacity: 0;
   position: fixed;
   inset: 0;
   z-index: 1000;
@@ -430,9 +422,15 @@ h1 em {
   justify-content: center;
   align-items: center;
   padding: 20px;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  pointer-events: none;
 }
 
-.modal.open { display: flex; }
+.modal.open {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
 
 .modal-content {
   background: var(--surface);
@@ -442,8 +440,14 @@ h1 em {
   width: 95%;
   max-width: 640px;
   position: relative;
-  animation: modalIn 0.35s var(--ease);
   box-shadow: 0 48px 96px rgba(0,0,0,0.6);
+  transform: translateY(20px) scale(0.97);
+  opacity: 0;
+  transition: transform 0.3s var(--ease), opacity 0.3s var(--ease);
+  max-height: 90vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a38 var(--ink);
 }
 
 .modal-content::before {
@@ -456,9 +460,29 @@ h1 em {
   border-radius: var(--r-lg) var(--r-lg) 0 0;
 }
 
-@keyframes modalIn {
-  from { transform: translateY(20px) scale(0.97); opacity: 0; }
-  to   { transform: translateY(0)    scale(1);    opacity: 1; }
+.modal.open .modal-content {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.modal.closing .modal-content {
+  transform: translateY(20px) scale(0.97);
+  opacity: 0;
+}
+
+.modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+.modal-content::-webkit-scrollbar-track {
+  background: var(--ink);
+  border-radius: var(--r-lg);
+}
+.modal-content::-webkit-scrollbar-thumb {
+  background: #2a2a38;
+  border-radius: 6px;
+}
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: #38384a;
 }
 
 .modal-content h2 {
@@ -554,10 +578,8 @@ h1 em {
   line-height: 1;
 }
 
-.close:hover {
-  background: rgba(255,255,255,0.07);
-  color: var(--snow);
-  transform: rotate(90deg);
+.close:active {
+  transform: scale(0.9) rotate(90deg);
 }
 
 /* ── Animations ────────────────────────────────────────────────────────── */
@@ -609,19 +631,61 @@ h1 em {
 
 /* ── Responsive ────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  h1 { font-size: clamp(3rem, 12vw, 4.5rem); }
+  h1 { font-size: clamp(3.2rem, 12vw, 4.5rem); }
 
-  .search-box { flex-direction: column; gap: 0; }
-  .search-box input  { border-right: 1px solid var(--rim2); border-bottom: none; border-radius: var(--r) var(--r) 0 0; }
-  .search-box button { width: 100%; border-radius: 0 0 var(--r) var(--r); }
+  /* Keep search box inline on mobile and iPad, making it compact and elegant */
+  .search-box { flex-direction: row; }
+  .search-wrap { width: auto; flex: 1; }
+  .search-icon { left: 16px; }
+  .search-box input {
+    padding: 13px 16px 13px 44px;
+    border-right: none;
+    border-radius: var(--r) 0 0 var(--r);
+    font-size: 0.9rem;
+  }
+  .search-box button {
+    padding: 13px 20px;
+    border-radius: 0 var(--r) var(--r) 0;
+    font-size: 0.8rem;
+    width: auto;
+  }
 
-  .movies-container { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+  .movies-container { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 16px; }
+  
+  .movie-info { padding: 14px 16px 16px; }
+  .movie-info h2 { font-size: 1.15rem; }
+  .overview { font-size: 0.78rem; margin-bottom: 14px; -webkit-line-clamp: 2; }
+  .card-actions { gap: 8px; }
+  .trailer-btn, .details-btn { padding: 8px 12px; font-size: 0.72rem; }
 
-  .modal-content { padding: 32px 24px; }
-  .modal-content h2 { font-size: 1.7rem; }
-  .modal-meta { grid-template-columns: 1fr; }
+  .modal-content { padding: 32px 20px; }
+  .modal-content h2 { font-size: 1.8rem; }
+  
+  /* Compact metadata grid on mobile rather than single-column stack */
+  .modal-meta { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .meta-item { padding: 10px 12px; }
+  .meta-value { font-size: 1rem; }
 
   .section-title { font-size: 2rem; }
+  
+  /* Mobile close button touch target size */
+  .close {
+    width: 44px;
+    height: 44px;
+    font-size: 1.3rem;
+    right: 12px;
+    top: 12px;
+  }
+
+  .autocomplete-dropdown {
+    max-height: 220px;
+  }
+}
+
+@media (max-height: 600px) {
+  .autocomplete-dropdown {
+    max-height: 170px;
+  }
 }
 
 /* ── Footer ─────────────────────────────────────────────────────────── */
@@ -688,8 +752,8 @@ h1 em {
   border-bottom: none;
 }
 
-.autocomplete-item:hover {
-  background: rgba(255, 255, 255, 0.04);
+.autocomplete-item:active {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .autocomplete-poster {
@@ -780,8 +844,47 @@ h1 em {
   cursor: pointer;
 }
 
-.provider-logo:hover {
-  transform: translateY(-2px) scale(1.08);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(201, 168, 76, 0.25);
-  border-color: rgba(201, 168, 76, 0.3);
+.provider-logo:active {
+  transform: scale(0.9);
+}
+
+/* ── Hover Effects for Desktop (Separated for Mobile Interactivity) ────── */
+@media (hover: hover) {
+  .movie-card:hover {
+    transform: translateY(-10px) scale(1.01);
+    box-shadow: 0 32px 64px rgba(0,0,0,0.55), 0 0 0 1px rgba(201,168,76,0.15);
+    border-color: rgba(201,168,76,0.2);
+  }
+  .movie-card:hover::before {
+    opacity: 1;
+  }
+  .movie-card:hover img {
+    transform: scale(1.06);
+    filter: brightness(1) saturate(1);
+  }
+  .trailer-btn:hover {
+    background: rgba(224,82,82,0.12);
+    border-color: var(--red);
+    color: var(--red);
+    transform: translateY(-2px);
+  }
+  .details-btn:hover {
+    background: rgba(201,168,76,0.08);
+    border-color: rgba(201,168,76,0.4);
+    color: var(--gold);
+    transform: translateY(-2px);
+  }
+  .close:hover {
+    background: rgba(255,255,255,0.07);
+    color: var(--snow);
+    transform: rotate(90deg);
+  }
+  .provider-logo:hover {
+    transform: translateY(-2px) scale(1.08);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(201, 168, 76, 0.25);
+    border-color: rgba(201, 168, 76, 0.3);
+  }
+  .autocomplete-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+  }
 }

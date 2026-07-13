@@ -132,7 +132,7 @@
   <script>
     // Pass python items to Javascript for the modal view
     var MOVIE_DATA = {
-      watchlist: {{ items | tojson }}
+      watchlist: {{ serialized_items | tojson }}
     };
 
     function getProviderSearchUrl(providerName, movieTitle, tmdbUrl) {

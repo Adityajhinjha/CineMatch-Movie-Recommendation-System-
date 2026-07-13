@@ -156,7 +156,23 @@ def logout():
 @login_required
 def watchlist():
     items = WatchlistItem.query.filter_by(user_id=current_user.id).all()
-    return render_template('watchlist.html', items=items)
+    serialized_items = []
+    for item in items:
+        serialized_items.append({
+            'id': item.id,
+            'movie_id': item.movie_id,
+            'title': item.title,
+            'poster': item.poster,
+            'rating': item.rating,
+            'overview': item.overview,
+            'trailer': item.trailer,
+            'release_date': '',
+            'runtime': '',
+            'language': '',
+            'genres': [],
+            'watch_providers': []
+        })
+    return render_template('watchlist.html', items=items, serialized_items=serialized_items)
 
 @app.route('/watchlist/add', methods=['POST'])
 def watchlist_add():

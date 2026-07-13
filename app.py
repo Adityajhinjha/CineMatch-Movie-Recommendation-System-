@@ -22,7 +22,16 @@ app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", "cine-match-super-secret-key-
 db_url = os.getenv("DATABASE_URL")
 if db_url and db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
-app.config['SQLALCHEMY_DATABASE_URI'] = db_url or "sqlite:///cine_match.db"
+
+if not db_url:
+    # Serverless platforms (like Vercel) have a read-only filesystem, except for /tmp/
+    if os.getenv("VERCEL") or "AWS_LAMBDA_FUNCTION_NAME" in os.environ:
+        app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////tmp/cine_match.db"
+    else:
+        app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///cine_match.db"
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)

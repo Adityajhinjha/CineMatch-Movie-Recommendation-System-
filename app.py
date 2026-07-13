@@ -243,6 +243,9 @@ def autocomplete():
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))
+
     movie_data     = []
     searched_movie = ""
     trending_movies = []

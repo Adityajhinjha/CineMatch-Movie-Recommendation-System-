@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CineMatch — My Watchlist</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- ── Header/Nav ─────────────────────────────────────────────────── -->
+    <header class="header-nav">
+      <a href="{{ url_for('home') }}" class="nav-logo">Cine<em>Match</em></a>
+      <div class="nav-links">
+        <span class="nav-user">Welcome, {{ current_user.name }}!</span>
+        <a href="{{ url_for('home') }}" class="nav-link">Discover</a>
+        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+      </div>
+    </header>
+
+    <!-- ── Hero ──────────────────────────────────────────────────────── -->
+    <div class="hero" style="padding-top: 40px; padding-bottom: 40px;">
+      <div class="hero-eyebrow">Your Collection</div>
+      <h1>My <em>Watchlist</em></h1>
+      <p class="subtitle">Movies you've saved to watch next.</p>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="flash-alert {{ category }}">
+              <span class="alert-icon">✦</span>
+              <span class="alert-text">{{ message }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- ── Watchlist Items Grid ────────────────────────────────────────── -->
+    {% if items %}
+    <div class="movies-container">
+      {% for item in items %}
+      <div class="movie-card" data-pool="watchlist" data-idx="{{ loop.index0 }}">
+
+        <div class="poster-wrap">
+          {% if item.poster %}
+          <img src="{{ item.poster }}" alt="{{ item.title }}" loading="lazy">
+          {% endif %}
+          {% if item.rating %}
+          <div class="rating-badge">★ {{ item.rating }}</div>
+          {% endif %}
+        </div>
+
+        <div class="movie-info">
+          <h2>{{ item.title }}</h2>
+          <p class="overview">{{ item.overview or '' }}</p>
+
+          <div class="card-actions">
+            {% if item.trailer %}
+            <a href="{{ item.trailer }}" target="_blank" class="trailer-btn">Trailer</a>
+            {% endif %}
+            
+            <form action="{{ url_for('watchlist_remove') }}" method="POST" class="remove-watchlist-form" style="display: inline;">
+              <input type="hidden" name="movie_id" value="{{ item.movie_id }}">
+              <button type="submit" class="remove-btn" title="Remove from Watchlist">Remove</button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">◎</div>
+      <p>Your watchlist is empty.<br><a href="{{ url_for('home') }}" class="discover-link">Go discover some movies!</a></p>
+    </div>
+    {% endif %}
+
+  </div><!-- /.container -->
+
+  <!-- ── Footer ─────────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <p>Created by <a href="https://github.com/Adityajhinjha" target="_blank">@Adityajhinjha</a></p>
+  </footer>
+
+  <!-- ── Modal ───────────────────────────────────────────────────────── -->
+  <div id="movieModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-content">
+      <button class="close" onclick="closeModal()" aria-label="Close">&times;</button>
+
+      <h2 id="modalTitle"></h2>
+      <div id="modalGenres" class="modal-genres"></div>
+      <div class="modal-divider"></div>
+      <p id="modalOverview"></p>
+
+      <!-- Where to Watch -->
+      <div id="watchProvidersRow" class="watch-providers-row" style="display: none;">
+        <div class="watch-providers-label">Where to Watch</div>
+        <div id="watchProvidersList" class="watch-providers-list"></div>
+      </div>
+
+      <div class="modal-meta">
+        <div class="meta-item">
+          <div class="meta-label">Rating</div>
+          <div class="meta-value" id="modalRating"></div>
+        </div>
+
+        <div class="meta-item" id="releaseRow">
+          <div class="meta-label">Year</div>
+          <div class="meta-value" id="modalRelease"></div>
+        </div>
+
+        <div class="meta-item" id="runtimeRow">
+          <div class="meta-label">Runtime</div>
+          <div class="meta-value" id="modalRuntime"></div>
+        </div>
+
+        <div class="meta-item" id="languageRow">
+          <div class="meta-label">Language</div>
+          <div class="meta-value" id="modalLanguage"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Pass python items to Javascript for the modal view
+    var MOVIE_DATA = {
+      watchlist: {{ items | tojson }}
+    };
+
+    function getProviderSearchUrl(providerName, movieTitle, tmdbUrl) {
+      var query = encodeURIComponent(movieTitle);
+      var name = providerName.toLowerCase();
+      
+      if (name.includes('netflix')) {
+        return 'https://www.netflix.com/search?q=' + query;
+      } else if (name.includes('prime video') || name.includes('amazon')) {
+        return 'https://www.amazon.com/s?k=' + query + '&i=instant-video';
+      } else if (name.includes('disney') || name.includes('hotstar')) {
+        return 'https://www.hotstar.com/in/explore?search_query=' + query;
+      } else if (name.includes('jiocinema')) {
+        return 'https://www.jiocinema.com/search/' + query;
+      } else if (name.includes('apple')) {
+        return 'https://tv.apple.com/search?term=' + query;
+      } else if (name.includes('google play')) {
+        return 'https://play.google.com/store/search?q=' + query + '&c=movies';
+      } else if (name.includes('zee5')) {
+        return 'https://www.zee5.com/search?q=' + query;
+      } else if (name.includes('youtube')) {
+        return 'https://www.youtube.com/results?search_query=' + query + '+movie';
+      }
+      
+      return tmdbUrl || ('https://www.google.com/search?q=watch+' + query + '+on+' + encodeURIComponent(providerName));
+    }
+
+    function openModal(pool, idx) {
+      var m = MOVIE_DATA[pool][idx];
+      if (!m) return;
+
+      document.getElementById('modalTitle').textContent = m.title || '';
+      document.getElementById('modalOverview').textContent = m.overview || '';
+
+      var rating = parseFloat(m.rating);
+      document.getElementById('modalRating').textContent =
+        '★ ' + (isNaN(rating) ? '—' : rating.toFixed(1));
+
+      // Year
+      var releaseRow = document.getElementById('releaseRow');
+      var rd = m.release_date || '';
+
+      if (rd && rd !== 'None' && rd !== 'null') {
+        document.getElementById('modalRelease').textContent = rd.split('-')[0];
+        releaseRow.style.display = 'block';
+      } else {
+        releaseRow.style.display = 'none';
+      }
+
+      // Runtime
+      var rr = document.getElementById('runtimeRow');
+      var rt = m.runtime;
+
+      if (rt && rt !== 'Not Available' && rt !== 'None' && rt !== null) {
+        var displayText = (typeof rt === 'number' || !isNaN(rt)) ? rt + ' min' : rt;
+        document.getElementById('modalRuntime').textContent = displayText;
+        rr.style.display = 'block';
+      } else {
+        rr.style.display = 'none';
+      }
+
+      // Language
+      var lr = document.getElementById('languageRow');
+      var lang = m.language || '';
+
+      if (lang && lang !== 'Not Available' && lang !== 'None') {
+        document.getElementById('modalLanguage').textContent = lang;
+        lr.style.display = 'block';
+      } else {
+        lr.style.display = 'none';
+      }
+
+      // Genres
+      var genresEl = document.getElementById('modalGenres');
+      genresEl.innerHTML = '';
+
+      var genres = m.genres || [];
+
+      if (genres.length) {
+        genres.forEach(function(g) {
+          var tag = document.createElement('span');
+          tag.className = 'genre-tag';
+          tag.textContent = g;
+          genresEl.appendChild(tag);
+        });
+
+        genresEl.style.display = 'flex';
+      } else {
+        genresEl.style.display = 'none';
+      }
+
+      // Watch Providers
+      var providersRow = document.getElementById('watchProvidersRow');
+      var providersList = document.getElementById('watchProvidersList');
+      providersList.innerHTML = '';
+
+      var providers = m.watch_providers || [];
+      var hasProviders = false;
+
+      if (providers.length) {
+        providers.forEach(function(p) {
+          if (p.logo) {
+            var img = document.createElement('img');
+            img.className = 'provider-logo';
+            img.src = p.logo;
+            img.alt = p.name;
+            img.title = 'Watch on ' + p.name;
+            
+            var link = document.createElement('a');
+            link.href = getProviderSearchUrl(p.name, m.title, p.tmdb_url);
+            link.target = '_blank';
+            link.className = 'provider-link';
+            link.appendChild(img);
+            
+            providersList.appendChild(link);
+            hasProviders = true;
+          }
+        });
+      }
+
+      if (hasProviders) {
+        providersRow.style.display = 'block';
+      } else {
+        var noOttSpan = document.createElement('span');
+        noOttSpan.style.color = 'var(--ash)';
+        noOttSpan.style.fontSize = '0.9rem';
+        noOttSpan.style.fontStyle = 'italic';
+        noOttSpan.textContent = 'Not available on OTT';
+        providersList.appendChild(noOttSpan);
+        providersRow.style.display = 'block';
+      }
+
+      document.getElementById('movieModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      var modal = document.getElementById('movieModal');
+      modal.classList.add('closing');
+      setTimeout(function() {
+        modal.classList.remove('open');
+        modal.classList.remove('closing');
+        document.body.style.overflow = '';
+      }, 300);
+    }
+
+    // Wire up movie cards and trailer/remove clicks
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.movie-card[data-pool]').forEach(function(card) {
+        card.addEventListener('click', function(e) {
+          if (e.target.closest('.trailer-btn') || e.target.closest('.remove-watchlist-form')) {
+            return;
+          }
+          openModal(card.dataset.pool, parseInt(card.dataset.idx));
+        });
+      });
+    });
+
+    document.getElementById('movieModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeModal();
+    });
+  </script>
+
+</body>
+</html>

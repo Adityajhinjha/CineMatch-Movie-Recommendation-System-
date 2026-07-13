@@ -866,3 +866,318 @@ h1 em {
     background: rgba(255, 255, 255, 0.04);
   }
 }
+
+/* ── Navigation Header ─────────────────────────────────────────────── */
+.header-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--rim);
+  margin-bottom: 20px;
+}
+
+.nav-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--snow);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+
+.nav-logo em {
+  color: var(--gold);
+  font-style: italic;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-user {
+  font-size: 0.85rem;
+  color: var(--ash);
+  font-weight: 400;
+}
+
+.nav-link, .login-btn {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--snow);
+  text-decoration: none;
+  transition: color 0.25s;
+}
+
+.nav-link:hover, .login-btn:hover {
+  color: var(--gold);
+}
+
+.logout-btn {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--red);
+  text-decoration: none;
+  padding: 6px 12px;
+  border: 1px solid rgba(224, 82, 82, 0.3);
+  border-radius: 6px;
+  transition: all 0.25s;
+}
+
+.logout-btn:hover {
+  background: rgba(224, 82, 82, 0.1);
+  border-color: var(--red);
+}
+
+/* ── Watchlist buttons in grid ─────────────────────────────────────── */
+.watchlist-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 16px;
+  background: transparent;
+  border: 1px solid rgba(201, 168, 76, 0.45);
+  border-radius: 8px;
+  color: var(--gold2);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  transition: all 0.25s;
+}
+
+.watchlist-btn:active {
+  transform: scale(0.95);
+}
+
+.watchlist-btn.added {
+  border-color: var(--rim2);
+  color: var(--ash);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.remove-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 16px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: var(--ash);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  transition: all 0.25s;
+}
+
+.remove-btn:hover {
+  background: rgba(224, 82, 82, 0.08);
+  border-color: rgba(224, 82, 82, 0.6);
+  color: var(--red);
+}
+
+.remove-btn:active {
+  transform: scale(0.95);
+}
+
+/* ── Auth Card (Google & Guest Auth) ────────────────────────────────── */
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+}
+
+.auth-card {
+  background: var(--surface);
+  border: 1px solid var(--rim2);
+  border-radius: var(--r-lg);
+  padding: 44px 40px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  position: relative;
+}
+
+.auth-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold), transparent);
+  opacity: 0.5;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+}
+
+.auth-card h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.2rem;
+  font-weight: 400;
+  color: var(--snow);
+  margin-bottom: 12px;
+}
+
+.auth-subtitle {
+  font-size: 0.85rem;
+  color: var(--ash);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.auth-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--snow);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--r);
+  color: #0c0c12;
+  padding: 14px 20px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.25s var(--ease);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.google-btn:hover {
+  background: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.15);
+}
+
+.google-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.15);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin: 8px 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.auth-divider span {
+  padding: 0 10px;
+}
+
+.guest-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--rim2);
+  border-radius: var(--r);
+  color: var(--snow);
+  padding: 14px 20px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.25s var(--ease);
+}
+
+.guest-btn:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(201, 168, 76, 0.4);
+  color: var(--gold);
+}
+
+.auth-back {
+  margin-top: 24px;
+}
+
+.back-link {
+  font-size: 0.85rem;
+  color: var(--ash);
+  text-decoration: none;
+  transition: color 0.25s;
+}
+
+.back-link:hover {
+  color: var(--snow);
+}
+
+/* ── Flash Alert Messages ───────────────────────────────────────────── */
+.flash-messages {
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 100;
+}
+
+.flash-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  animation: slideIn 0.35s var(--ease);
+}
+
+.flash-alert.success {
+  background: rgba(62, 180, 137, 0.1);
+  border: 1px solid rgba(62, 180, 137, 0.35);
+  color: #55d0a4;
+}
+
+.flash-alert.success .alert-icon {
+  color: var(--emerald);
+}
+
+.flash-alert.info, .flash-alert.error {
+  background: rgba(224, 82, 82, 0.08);
+  border: 1px solid rgba(224, 82, 82, 0.35);
+  color: #f77b7b;
+}
+
+.flash-alert.info .alert-icon, .flash-alert.error .alert-icon {
+  color: var(--red);
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ── Media Queries for Hover States ─────────────────────────────────── */
+@media (hover: hover) {
+  .watchlist-btn:hover {
+    background: rgba(201, 168, 76, 0.1);
+    border-color: var(--gold);
+    color: var(--gold);
+    transform: translateY(-2px);
+  }
+}

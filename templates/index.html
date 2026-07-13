@@ -10,6 +10,34 @@
 
   <div class="container">
 
+    <!-- ── Header/Nav ─────────────────────────────────────────────────── -->
+    <header class="header-nav">
+      <a href="{{ url_for('home') }}" class="nav-logo">Cine<em>Match</em></a>
+      <div class="nav-links">
+        {% if current_user.is_authenticated %}
+          <span class="nav-user">Welcome, {{ current_user.name }}!</span>
+          <a href="{{ url_for('watchlist') }}" class="nav-link">My Watchlist</a>
+          <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="login-btn">Login</a>
+        {% endif %}
+      </div>
+    </header>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="flash-alert {{ category }}">
+              <span class="alert-icon">✦</span>
+              <span class="alert-text">{{ message }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
     <!-- ── Hero ──────────────────────────────────────────────────────── -->
     <div class="hero">
       <div class="hero-eyebrow">Curated Cinema</div>
@@ -64,6 +92,19 @@
             {% if movie.trailer %}
             <a href="{{ movie.trailer }}" target="_blank" class="trailer-btn">Trailer</a>
             {% endif %}
+            <form action="{{ url_for('watchlist_add') }}" method="POST" class="add-watchlist-form" style="display: inline;">
+              <input type="hidden" name="movie_id" value="{{ movie.movie_id or movie.id }}">
+              <input type="hidden" name="title" value="{{ movie.title }}">
+              <input type="hidden" name="poster" value="{{ movie.poster or '' }}">
+              <input type="hidden" name="rating" value="{{ movie.rating or '' }}">
+              <input type="hidden" name="overview" value="{{ movie.overview or '' }}">
+              <input type="hidden" name="trailer" value="{{ movie.trailer or '' }}">
+              {% if user_watchlist_ids and (movie.movie_id or movie.id)|int in user_watchlist_ids %}
+                <button type="button" class="watchlist-btn added" title="Already in Watchlist" disabled>Added</button>
+              {% else %}
+                <button type="submit" class="watchlist-btn" title="Add to Watchlist">+ Watchlist</button>
+              {% endif %}
+            </form>
           </div>
         </div>
 
@@ -104,6 +145,19 @@
             {% if movie.trailer %}
             <a href="{{ movie.trailer }}" target="_blank" class="trailer-btn">Trailer</a>
             {% endif %}
+            <form action="{{ url_for('watchlist_add') }}" method="POST" class="add-watchlist-form" style="display: inline;">
+              <input type="hidden" name="movie_id" value="{{ movie.movie_id or movie.id }}">
+              <input type="hidden" name="title" value="{{ movie.title }}">
+              <input type="hidden" name="poster" value="{{ movie.poster or '' }}">
+              <input type="hidden" name="rating" value="{{ movie.rating or '' }}">
+              <input type="hidden" name="overview" value="{{ movie.overview or '' }}">
+              <input type="hidden" name="trailer" value="{{ movie.trailer or '' }}">
+              {% if user_watchlist_ids and (movie.movie_id or movie.id)|int in user_watchlist_ids %}
+                <button type="button" class="watchlist-btn added" title="Already in Watchlist" disabled>Added</button>
+              {% else %}
+                <button type="submit" class="watchlist-btn" title="Add to Watchlist">+ Watchlist</button>
+              {% endif %}
+            </form>
           </div>
         </div>
 

@@ -1,11 +1,16 @@
 
+import os
 import pickle
 import numpy as np
 
-with open('movies.pkl', 'rb') as f:
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+movies_path = os.path.join(current_dir, 'movies.pkl')
+with open(movies_path, 'rb') as f:
     movies = pickle.load(f)           
 
-with open('similarity.pkl', 'rb') as f:
+similarity_path = os.path.join(current_dir, 'similarity.pkl')
+with open(similarity_path, 'rb') as f:
     similarity_data = pickle.load(f)
 
 top_indices = similarity_data['indices']

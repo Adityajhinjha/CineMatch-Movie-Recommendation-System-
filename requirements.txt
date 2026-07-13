@@ -1,12 +1,9 @@
 Flask
 pandas
 numpy
-scikit-learn
-nltk
 requests
 python-dotenv
 gunicorn
-pyarrow
 Flask-SQLAlchemy
 Flask-Login
 Authlib

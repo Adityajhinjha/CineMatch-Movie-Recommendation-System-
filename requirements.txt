@@ -8,3 +8,4 @@ Flask-SQLAlchemy
 Flask-Login
 Authlib
 psycopg2-binary
+pyarrow

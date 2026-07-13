@@ -384,8 +384,8 @@
       // Wire up clicks on the entire card
       document.querySelectorAll('.movie-card[data-pool]').forEach(function(card) {
         card.addEventListener('click', function(e) {
-          // If click is on or inside trailer button, don't open modal
-          if (e.target.closest('.trailer-btn')) {
+          // If click is on or inside trailer button or watchlist form, don't open modal
+          if (e.target.closest('.trailer-btn') || e.target.closest('.add-watchlist-form') || e.target.closest('.watchlist-btn')) {
             return;
           }
           openModal(card.dataset.pool, parseInt(card.dataset.idx));

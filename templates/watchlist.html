@@ -65,7 +65,7 @@
             <a href="{{ item.trailer }}" target="_blank" class="trailer-btn">Trailer</a>
             {% endif %}
             
-            <form action="{{ url_for('watchlist_remove') }}" method="POST" class="remove-watchlist-form" style="display: inline;">
+            <form action="{{ url_for('watchlist_remove') }}" method="POST" class="remove-watchlist-form add-watchlist-form">
               <input type="hidden" name="movie_id" value="{{ item.movie_id }}">
               <button type="submit" class="remove-btn" title="Remove from Watchlist">Remove</button>
             </form>

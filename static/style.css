@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
 
 /* ── Variables ─────────────────────────────────────────────────────────── */
 :root {
@@ -24,7 +24,7 @@
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
   background: var(--ink);
   color: var(--snow);
   min-height: 100vh;
@@ -99,9 +99,9 @@ body::after {
 }
 
 h1 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Playfair Display', serif;
   font-size: clamp(4rem, 8vw, 7.5rem);
-  font-weight: 300;
+  font-weight: 400;
   line-height: 0.92;
   letter-spacing: -0.02em;
   color: var(--snow);
@@ -164,7 +164,7 @@ h1 em {
   border-right: none;
   border-radius: var(--r) 0 0 var(--r);
   color: var(--snow);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
   font-weight: 300;
   outline: none;
@@ -186,7 +186,7 @@ h1 em {
   color: var(--ink);
   border: none;
   border-radius: 0 var(--r) var(--r) 0;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 0.85rem;
   font-weight: 500;
   letter-spacing: 0.08em;
@@ -213,7 +213,7 @@ h1 em {
 }
 
 .section-title {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Playfair Display', serif;
   font-size: 2.8rem;
   font-weight: 400;
   letter-spacing: -0.01em;
@@ -255,6 +255,7 @@ h1 em {
   position: relative;
   transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease), border-color 0.35s;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .movie-card::before {
@@ -336,7 +337,7 @@ h1 em {
 }
 
 .movie-info h2 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Playfair Display', serif;
   font-size: 1.35rem;
   font-weight: 600;
   line-height: 1.2;
@@ -362,13 +363,15 @@ h1 em {
 .card-actions {
   display: flex;
   width: 100%;
+  margin-top: auto;
+  gap: 10px;
 }
 
 .trailer-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  flex: 1;
   gap: 7px;
   padding: 10px 16px;
   background: transparent;
@@ -380,6 +383,11 @@ h1 em {
   font-weight: 500;
   letter-spacing: 0.05em;
   transition: background 0.25s, border-color 0.25s, color 0.25s, transform 0.2s;
+}
+
+.add-watchlist-form {
+  flex: 1;
+  display: flex;
 }
 
 .trailer-btn::before {
@@ -470,7 +478,7 @@ h1 em {
 }
 
 .modal-content h2 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Playfair Display', serif;
   font-size: 2.2rem;
   font-weight: 400;
   color: var(--snow);
@@ -538,7 +546,7 @@ h1 em {
 }
 
 .meta-value {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Playfair Display', serif;
   font-size: 1.15rem;
   font-weight: 400;
   color: var(--snow);
@@ -608,7 +616,7 @@ h1 em {
 }
 
 .empty-state p {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Playfair Display', serif;
   font-size: 1.4rem;
   font-weight: 300;
 }
@@ -616,6 +624,7 @@ h1 em {
 /* ── Responsive ────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   h1 { font-size: clamp(3.2rem, 12vw, 4.5rem); }
+  .hero { padding: 50px 0 40px; }
 
   /* Keep search box inline on mobile and iPad, making it compact and elegant */
   .search-box { flex-direction: row; }
@@ -625,7 +634,7 @@ h1 em {
     padding: 13px 16px 13px 44px;
     border-right: none;
     border-radius: var(--r) 0 0 var(--r);
-    font-size: 0.9rem;
+    font-size: 16px; /* prevents iOS zoom on focus */
   }
   .search-box button {
     padding: 13px 20px;
@@ -634,24 +643,94 @@ h1 em {
     width: auto;
   }
 
-  .movies-container { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 16px; }
-  
-  .movie-info { padding: 14px 16px 16px; }
-  .movie-info h2 { font-size: 1.15rem; }
-  .overview { font-size: 0.78rem; margin-bottom: 14px; -webkit-line-clamp: 2; }
-  .card-actions { gap: 8px; }
-  .trailer-btn { padding: 8px 12px; font-size: 0.72rem; }
+  .movies-container { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
 
-  .modal-content { padding: 32px 20px; }
-  .modal-content h2 { font-size: 1.8rem; }
-  
-  /* Compact metadata grid on mobile rather than single-column stack */
+  /* "Tap for details" overlay hint on cards */
+  .movie-card .poster-wrap::before {
+    content: 'Tap for details';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    padding: 8px;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    background: linear-gradient(to top, rgba(10,10,15,0.85), transparent);
+    z-index: 3;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .movie-card:active .poster-wrap::before {
+    opacity: 1;
+  }
+
+  .movie-info { padding: 12px 14px 14px; }
+  .movie-info h2 { font-size: 1.05rem; margin-bottom: 6px; }
+  .overview { font-size: 0.75rem; margin-bottom: 12px; -webkit-line-clamp: 2; }
+
+  /* Stack buttons vertically on small cards for bigger tap targets */
+  .card-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .trailer-btn,
+  .watchlist-btn,
+  .remove-btn {
+    min-height: 44px; /* Apple HIG min touch target */
+    font-size: 0.75rem;
+    padding: 10px 14px;
+  }
+
+  /* Bottom-sheet style modal on mobile */
+  .modal {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .modal-content {
+    padding: 28px 20px 32px;
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    max-height: 85vh;
+    width: 100%;
+    max-width: 100%;
+    transform: translateY(100%);
+    opacity: 1;
+  }
+  .modal.open .modal-content {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  .modal.closing .modal-content {
+    transform: translateY(100%);
+    opacity: 1;
+  }
+
+  /* Pull-down indicator bar on mobile modal */
+  .modal-content::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 4px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.2);
+  }
+  .modal-content h2 { font-size: 1.6rem; margin-top: 12px; }
+
+  /* Compact metadata grid on mobile */
   .modal-meta { grid-template-columns: 1fr 1fr; gap: 10px; }
   .meta-item { padding: 10px 12px; }
   .meta-value { font-size: 1rem; }
 
-  .section-title { font-size: 2rem; }
-  
+  .section-header { margin: 48px 0 24px; }
+  .section-title { font-size: 1.8rem; }
+
   /* Mobile close button touch target size */
   .close {
     width: 44px;
@@ -664,6 +743,25 @@ h1 em {
   .autocomplete-dropdown {
     max-height: 220px;
   }
+
+  /* Nav adjustments */
+  .header-nav { padding: 16px 0; gap: 12px; }
+  .nav-user { display: none; }
+  .nav-links { gap: 12px; }
+  .nav-link, .logout-btn { font-size: 0.78rem; }
+  .nav-logo { font-size: 1.5rem; }
+
+  /* Provider logos bigger for touch */
+  .provider-logo { width: 44px; height: 44px; }
+}
+
+/* ── Extra small screens (phones in portrait) ─────────────────────────── */
+@media (max-width: 380px) {
+  .movies-container { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .movie-info h2 { font-size: 0.95rem; }
+  .overview { -webkit-line-clamp: 1; }
+  .card-actions { gap: 6px; }
+  .trailer-btn, .watchlist-btn, .remove-btn { font-size: 0.7rem; padding: 9px 10px; }
 }
 
 @media (max-height: 600px) {
@@ -832,7 +930,7 @@ h1 em {
   transform: scale(0.9);
 }
 
-/* ── Hover Effects for Desktop (Separated for Mobile Interactivity) ────── */
+/* ── Hover Effects for Desktop ──────────────────────────────────────────── */
 @media (hover: hover) {
   .movie-card:hover {
     transform: translateY(-10px) scale(1.01);
@@ -868,6 +966,78 @@ h1 em {
   }
 }
 
+/* ── Touch-specific interactions (phones & tablets) ────────────────────── */
+@media (hover: none) {
+  /* Card tap feedback — quick press-in with gold glow */
+  .movie-card:active {
+    transform: scale(0.96);
+    box-shadow: 0 4px 20px rgba(201,168,76,0.2);
+    border-color: rgba(201,168,76,0.3);
+    transition-duration: 0.1s;
+  }
+  .movie-card:active::before {
+    opacity: 1;
+  }
+  .movie-card:active img {
+    filter: brightness(1.05) saturate(1.1);
+    transition-duration: 0.1s;
+  }
+
+  /* Button tap feedback */
+  .trailer-btn:active {
+    background: rgba(224,82,82,0.18);
+    border-color: var(--red);
+    color: var(--red);
+    transform: scale(0.95);
+    transition-duration: 0.1s;
+  }
+  .watchlist-btn:active {
+    background: rgba(201,168,76,0.15);
+    border-color: var(--gold);
+    transform: scale(0.95);
+    transition-duration: 0.1s;
+  }
+  .remove-btn:active {
+    background: rgba(224,82,82,0.12);
+    border-color: rgba(224,82,82,0.6);
+    color: var(--red);
+    transform: scale(0.95);
+    transition-duration: 0.1s;
+  }
+
+  /* Close button tap */
+  .close:active {
+    background: rgba(255,255,255,0.12);
+    color: var(--snow);
+    transform: scale(0.9);
+  }
+
+  /* Provider logo tap */
+  .provider-logo:active {
+    transform: scale(0.92);
+    box-shadow: 0 2px 8px rgba(201,168,76,0.3);
+    border-color: rgba(201,168,76,0.4);
+  }
+
+  /* Autocomplete tap */
+  .autocomplete-item:active {
+    background: rgba(201,168,76,0.1);
+  }
+
+  /* Logout/nav tap */
+  .logout-btn:active {
+    background: rgba(224,82,82,0.15);
+    border-color: var(--red);
+  }
+  .nav-link:active {
+    color: var(--gold);
+  }
+  .search-box button:active {
+    background: var(--gold2);
+    transform: scale(0.97);
+  }
+}
+
 /* ── Navigation Header ─────────────────────────────────────────────── */
 .header-nav {
   display: flex;
@@ -879,7 +1049,7 @@ h1 em {
 }
 
 .nav-logo {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Playfair Display', serif;
   font-size: 1.8rem;
   font-weight: 700;
   color: var(--snow);
@@ -890,7 +1060,7 @@ h1 em {
 .nav-logo em {
   color: var(--gold);
   font-style: italic;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Playfair Display', serif;
 }
 
 .nav-links {
@@ -938,6 +1108,7 @@ h1 em {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
   padding: 9px 16px;
   background: transparent;
   border: 1px solid rgba(201, 168, 76, 0.45);
@@ -965,6 +1136,7 @@ h1 em {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
   padding: 9px 16px;
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -1019,7 +1191,7 @@ h1 em {
 }
 
 .auth-card h2 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Playfair Display', serif;
   font-size: 2.2rem;
   font-weight: 400;
   color: var(--snow);

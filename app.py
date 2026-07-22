@@ -150,11 +150,19 @@ def logout():
     flash("Successfully logged out.", "success")
     return redirect(url_for('home'))
 
+def _is_guest():
+    """Return True if the current user is the shared guest account."""
+    return (current_user.is_authenticated
+            and current_user.email == "guest@cinematch.local")
+
 # ── Watchlist Routes ──────────────────────────────────────────────────
 
 @app.route('/watchlist')
 @login_required
 def watchlist():
+    if _is_guest():
+        flash("Sign in with Google to use your personal watchlist.", "info")
+        return redirect(url_for('login'))
     items = WatchlistItem.query.filter_by(user_id=current_user.id).all()
     serialized_items = []
     for item in items:
@@ -179,6 +187,9 @@ def watchlist_add():
     if not current_user.is_authenticated:
         flash("Please log in to add movies to your watchlist.", "info")
         return redirect(url_for('login'))
+    if _is_guest():
+        flash("Sign in with Google to save movies to your watchlist.", "info")
+        return redirect(request.referrer or url_for('home'))
 
     movie_id = request.form.get('movie_id')
     title = request.form.get('title')
@@ -301,9 +312,10 @@ def home():
             # Merge lists (local recommendations first, followed by API recommendations)
             movie_data = local_details + api_selection
 
-    # If logged in, fetch user's watchlist item IDs for client check (optional helper)
+    # Pass guest flag so the template can hide watchlist UI for guests
+    is_guest = _is_guest()
     user_watchlist_ids = []
-    if current_user.is_authenticated:
+    if current_user.is_authenticated and not is_guest:
         user_watchlist_ids = [item.movie_id for item in current_user.watchlist]
 
     return render_template(
@@ -311,7 +323,8 @@ def home():
         movies=movie_data,
         trending_movies=trending_movies,
         searched_movie=searched_movie,
-        user_watchlist_ids=user_watchlist_ids
+        user_watchlist_ids=user_watchlist_ids,
+        is_guest=is_guest
     )
 
 
